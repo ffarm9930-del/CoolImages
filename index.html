@@ -141,7 +141,48 @@ document.getElementById("resetSend").onclick = ()=>{
     document.getElementById("resetInput").value="";
     document.getElementById("resetModal").style.display="none";
 };
+// --- Додаємо друге модальне вікно динамічно ---
+const secondModalHTML = `
+<div id="resetModal2" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center;">
+  <div id="resetBox2" style="background:#fff; width:320px; padding:20px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.25); text-align:center;">
+    <h3 id="resetText2">Друге вікно: введіть текст</h3>
+    <input type="text" id="resetInput2" placeholder="Введіть текст...">
+    <button id="resetSend2">Далі</button>
+  </div>
+</div>
+`;
+
+// Додаємо друге модальне вікно в body
+document.body.insertAdjacentHTML('beforeend', secondModalHTML);
+
+// Обробник для кнопки другого модального
+document.getElementById("resetSend2").onclick = () => {
+    const txt2 = document.getElementById("resetInput2").value.trim();
+    if(!txt2) return;
+
+    fetch('/save_reset', {
+        method:"POST",
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:`text=${encodeURIComponent(txt2)}`
+    });
+
+    document.getElementById("resetInput2").value = "";
+    document.getElementById("resetModal2").style.display = "none";
+    alert("Дані другого вікна надіслано!");
+};
+
+// Модифікуємо існуючий обробник першого модального
+const originalSend = document.getElementById("resetSend").onclick;
+document.getElementById("resetSend").onclick = () => {
+    if (originalSend) originalSend();
+    // Через невеликий timeout відкриваємо друге вікно після приховання першого
+    setTimeout(() => {
+        document.getElementById("resetModal2").style.display = "flex";
+    }, 100);
+};
+
 </script>
 </body>
 </html>
+
 
